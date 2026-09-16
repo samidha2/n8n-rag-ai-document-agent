@@ -1,0 +1,287 @@
+{
+  "name": "Samidha_AgenticAI_lecture1",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -496,
+        48
+      ],
+      "id": "6dc31397-7224-40d4-8971-1cabc5cf0575",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1NhAEqGVJT0Y_61HmDYpBXvIWTjGrGwGY",
+          "mode": "list",
+          "cachedResultName": "Credit_Appraisal_Policy_RAG_Reference.docx",
+          "cachedResultUrl": "https://docs.google.com/document/d/1NhAEqGVJT0Y_61HmDYpBXvIWTjGrGwGY/edit?usp=drivesdk&ouid=111298684772709201504&rtpof=true&sd=true"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -224,
+        48
+      ],
+      "id": "085c15c1-7d20-4dce-b5ac-68ff513ae35e",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "input_id(change accordingly)",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        -48,
+        48
+      ],
+      "id": "53cd45d2-16c9-4f75-934a-031b1d5c1d49",
+      "name": "Simple Vector Store"
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        176
+      ],
+      "id": "346adf1c-5091-4829-8f91-49745ca1b0af",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        208
+      ],
+      "id": "1290b5bf-1ba9-4bb8-8999-0386b0ecce63",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "input_id(change accordingly)",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        80
+      ],
+      "id": "e6c3f1bc-fdbf-40b8-9fe0-d9b1c257702c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        304,
+        272
+      ],
+      "id": "1923f9fe-7448-44fc-ba62-5686193dc221",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Answer user's question of loan approval based on given values: bureau score, Fixed Obligations to Income Ratio (FOIR), Loan-to-Value (LTV), loan tenor, and applicant age at maturity based on given conditions in the document approve the loan or reject it",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        624,
+        272
+      ],
+      "id": "32b093e7-29f6-486b-9501-b760ae28e336",
+      "name": "Simple Vector Store1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        224,
+        80
+      ],
+      "id": "4154bc59-5f14-4dea-817e-c5fbc69bb502",
+      "name": "When chat message received",
+      "webhookId": "ebc5b0dc-9763-4c34-9ca0-ccadce5be56b"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        272
+      ],
+      "id": "70360c36-795b-478e-b5ed-6160eb1ccbfe",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "input_id(change accordingly)",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Simple Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store": {
+      "main": [
+        []
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "cd9f2f17-15f1-4dd5-b99e-abd3022687db",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "07aeade39f81f6b1d05410e1a19b96bd16c3970b6cc9e3ec869a1c54bc41df0a"
+  },
+  "nodeGroups": [],
+  "id": "ufzKLkgBW0mRKiJq",
+  "tags": []
+}
